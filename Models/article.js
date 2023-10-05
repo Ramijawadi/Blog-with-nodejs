@@ -1,30 +1,37 @@
-const mongoose = require('mongoose');
-
+const mongoose = require("mongoose");
+const slug = require("slugify");
+const marked = require("marked");
+const { default: slugify } = require("slugify");
 
 const acticleSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  descrption: {
+    type: String,
+  },
+  markdown: {
+    type: String,
+    required: true,
+  },
 
-title : {
-type:String , 
-required :true ,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  slug: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+});
 
-}, 
-descrption :{
+acticleSchema.pre("validate", function (next) {
+  if (this.title) {
+    this.slug = slugify(this.title, { lower: true, strict: true });
+  }
+  next();
+});
 
-    type:String, 
-
-}, 
-markdown : {
-
-type:String ,
-required : true 
-},
-
-createdAt : {
-
-    type:String , 
-    default : Date.now
-}
-})
-
-
-module.exports = mongoose.model('Article' , acticleSchema)
+module.exports = mongoose.model("Article", acticleSchema);

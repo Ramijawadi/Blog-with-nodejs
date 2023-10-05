@@ -2,43 +2,34 @@ const express = require('express')
 require('dotenv').config()
 const mongoose = require('mongoose');
 const articlesRouter = require('./Routes/article')
+const Article =require('./Models/article')
+const methodeOverride = require('method-override')
 const app = express()
 
-
-
-
 app.use(express.urlencoded({ extended: false }))
-
+app.use(methodeOverride('_method'))
 
 app.set('view engine', 'ejs')
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 
-    const articles = [{
-
-        title: 'test title of the articles',
-        createdAt: new Date(),
-        description: 'test description of the articles'
-    },
-
-    {
-
-        title: 'test title of the articles 2',
-        createdAt: new Date(),
-        description: 'test description of the articles 2'
-    },
-
-    ]
+   const articles = await  Article.find().sort({createdAt : 'desc'})
 
     res.render('articles/index', { articles: articles })
 })
 
+
+//pour tt les routes sous /articles
 app.use('/articles', articlesRouter);
 
 
 
 const uri = process.env.MONGO_URI;
 mongoose
-    .connect(uri)
+    .connect(uri , {
+
+useNewUrlParser : true , useUnifiedTopology: true 
+
+    })
 
     .then(() => {
         console.log(`db connected successfully`);
